@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Share Tech Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0a0e27;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Scrollbar personalizada con estilo neon */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00ffff, #a855f7);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #06b6d4, #c084fc);
+}
+
+/* Animaciones globales */
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+  }
+  50% {
+    text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
+  }
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    border-color: rgba(6, 182, 212, 0.8);
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
+  }
+}
+
+/* index.css */
+
+:root {
+  --neon-cyan: #00ffff;
+  --neon-purple: #a855f7;
+}
+
+/* Neon Flicker */
+@keyframes neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow: 
+      0 0 4px #fff,
+      0 0 11px #fff,
+      0 0 19px #fff,
+      0 0 40px var(--neon-cyan),
+      0 0 80px var(--neon-cyan),
+      0 0 90px var(--neon-cyan),
+      0 0 100px var(--neon-cyan),
+      0 0 150px var(--neon-cyan);
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+    opacity: 0.7;
+  }
+}
+
+/* Neon Flicker quick*/
+@keyframes neon-flicker-quick {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 10px var(--neon-cyan); }
+  20%, 22%, 24%, 55% { opacity: 0.2; text-shadow: none; }
+}
+
+/* Neon Steady */
+@keyframes neon-steady {
+  0%, 100% { text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan); opacity: 1; }
+  50% { text-shadow: 0 0 12px var(--neon-cyan), 0 0 25px var(--neon-cyan); opacity: 0.95; }
+}
+
+/* "Broken Letter" */
+@keyframes faulty-flicker {
+  0% { opacity: 1; }
+  2% { opacity: 0.4; text-shadow: 0 0 30px rgba(255,255,255,0.5); }
+  4% { opacity: 1; }
+  19% { opacity: 1; }
+  20% { opacity: 0; text-shadow: none; }
+  21% { opacity: 1; text-shadow: 0 0 100px #fff; } /* Chispa */
+  22% { opacity: 0.5; }
+  23% { opacity: 1; }
+  80% { opacity: 1; }
+  83% { opacity: 0.4; }
+  87% { opacity: 1; }
+}
+
+/* Neon critical */
+@keyframes neon-critical {
+  0%, 88%, 100% { opacity: 1; color: #fff; text-shadow: 0 0 10px var(--neon-cyan); }
+  90% { opacity: 0; text-shadow: none; }
+  91% { opacity: 1; color: #fff; text-shadow: 0 0 50px var(--neon-white), 0 0 100px var(--neon-white); } /* El chispazo */
+  93% { opacity: 0.3; }
+  94% { opacity: 1; }
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+.anim-steady { animation: neon-steady 3s infinite; }
+.anim-flicker { animation: neon-flicker-quick 4s infinite; }
+.anim-critical { animation: neon-critical 7s infinite; }
+
+.neon-title {
+  color: #fff;
+  animation: neon-flicker 2s infinite alternate;
+}
+
+.broken-letter {
+  animation: faulty-flicker 5s infinite;
+  display: inline-block;
+}
