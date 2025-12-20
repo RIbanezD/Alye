@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import NeonText from './components/NeonText';
+import NeonHeader from './components/NeonHeader';
 import PayloadGenerator from './pages/payloads';
 import RagAssistant from './pages/rag';
 import Classifier from './pages/classifier';
 import Osint from './pages/osint';
 import Reports from './pages/reports';
 import Providers from './pages/providers';
+import NotFound from './pages/NotFound';
 
 function Home({ modules }) {
   return (
@@ -61,82 +64,6 @@ const PagePlaceholder = ({ title }) => (
     <p className="mt-4 text-gray-400">Contenido del módulo en desarrollo...</p>
   </div>
 );
-
-
-const NeonText = ({ text, className = "" }) => {
-  return (
-    <span className={`flex flex-wrap ${className}`}>
-      {text.split("").map((char, index) => {
-        if (char === " ") return <span key={index} className="mx-1">&nbsp;</span>;
-
-        // Lógica random para cada letra del título del módulo
-        const rand = Math.random();
-        let animClass = "anim-steady";
-        
-        if (rand > 0.92) {
-          animClass = "anim-critical"; // Un poco menos frecuente para no distraer tanto
-        } else if (rand > 0.75) {
-          animClass = "anim-flicker";
-        }
-
-        const randomDuration = (Math.random() * 2 + 3).toFixed(2) + "s";
-        const randomDelay = (Math.random() * 4).toFixed(2) + "s";
-
-        return (
-          <span
-            key={index}
-            className={animClass}
-            style={{
-              animationDuration: randomDuration,
-              animationDelay: randomDelay,
-              display: "inline-block"
-            }}
-          >
-            {char}
-          </span>
-        );
-      })}
-    </span>
-  );
-};
-
-const NeonHeader = ({ text }) => {
-  if (!text) return null;
-  return (
-    <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-wider uppercase flex flex-wrap justify-center">
-      {text.split("").map((char, index) => {
-        if (char === " ") return <span key={index} className="mx-2">&nbsp;</span>;
-
-        const rand = Math.random();
-        let animClass = "anim-steady";
-        
-        if (rand > 0.85) {
-          animClass = "anim-critical"; // 15% de probabilidad de fallo crítico
-        } else if (rand > 0.6) {
-          animClass = "anim-flicker"; // 25% de probabilidad de parpadeo rápido
-        }
-
-        // Variamos también la duración y el retraso para que no sea uniforme
-        const randomDuration = (Math.random() * 3 + 2).toFixed(2) + "s";
-        const randomDelay = (Math.random() * 5).toFixed(2) + "s";
-
-        return (
-          <span
-            key={index}
-            className={animClass}
-            style={{
-              animationDuration: randomDuration,
-              animationDelay: randomDelay,
-              display: "inline-block"
-            }}
-          >
-            {char}
-          </span>
-        );
-      })}
-    </h1>
-  );
-};
 
 function App() {
   const [modules] = useState([
@@ -201,6 +128,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home modules={modules} />} />
+        <Route path="*" element={<NotFound />} />
         <Route path="/payloads" element={<PayloadGenerator/>} />
         <Route path="/rag" element={<RagAssistant/>} />
         <Route path="/classifier" element={<Classifier/>} />

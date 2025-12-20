@@ -1,113 +1,68 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const NeonText = ({ text, className = "" }) => {
-  return (
-    <span className={`flex flex-wrap ${className}`}>
-      {text.split("").map((char, index) => {
-        if (char === " ") return <span key={index} className="mx-1">&nbsp;</span>;
-        
-        const rand = Math.random();
-        let animClass = "anim-steady";
-        
-        if (rand > 0.92) {
-          animClass = "anim-critical";
-        } else if (rand > 0.75) {
-          animClass = "anim-flicker";
-        }
-
-        const randomDuration = (Math.random() * 2 + 3).toFixed(2) + "s";
-        const randomDelay = (Math.random() * 4).toFixed(2) + "s";
-
-        return (
-          <span
-            key={index}
-            className={animClass}
-            style={{
-              animationDuration: randomDuration,
-              animationDelay: randomDelay,
-              display: "inline-block"
-            }}
-          >
-            {char}
-          </span>
-        );
-      })}
-    </span>
-  );
-};
-
+import { useToast } from '../contexts/ToastContext';
+import NeonText from '../components/NeonText';
+  
 const Providers = () => {
-  const [providers, setProviders] = useState([
-    {
-      id: 1,
-      name: 'OpenAI GPT-4',
-      status: 'Active',
-      model: 'gpt-4-turbo',
-      apiKey: '••••••••••••3kF2',
-      usage: 75,
-      limit: 100000,
-      cost: 45.30,
-      latency: 1200,
-      reliability: 99.9
-    },
-    {
-      id: 2,
-      name: 'Anthropic Claude',
-      status: 'Active',
-      model: 'claude-3-opus',
-      apiKey: '••••••••••••7mX9',
-      usage: 60,
-      limit: 50000,
-      cost: 32.15,
-      latency: 900,
-      reliability: 99.8
-    },
-    {
-      id: 3,
-      name: 'Google PaLM 2',
-      status: 'Standby',
-      model: 'palm-2',
-      apiKey: '••••••••••••1nQ4',
-      usage: 20,
-      limit: 75000,
-      cost: 12.50,
-      latency: 1500,
-      reliability: 98.5
-    },
-    {
-      id: 4,
-      name: 'Cohere',
-      status: 'Active',
-      model: 'command',
-      apiKey: '••••••••••••5pR8',
-      usage: 40,
-      limit: 60000,
-      cost: 18.90,
-      latency: 800,
-      reliability: 99.2
-    }
-  ]);
+  const toast = useToast();
 
+  const [providers, setProviders] = useState([]);
   const [showAddProvider, setShowAddProvider] = useState(false);
+  const [newProvider, setNewProvider] = useState({
+    name: '',
+    model: '',
+    apiKey: '',
+    limit: '',
+    status: 'Active'
+  });
+
+  const handleAddProvider = () => {
+    if (!newProvider.name || !newProvider.model || !newProvider.apiKey) {
+      toast.warning('Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    const provider = {
+      id: providers.length + 1,
+      name: newProvider.name,
+      status: newProvider.status,
+      model: newProvider.model,
+      apiKey: '••••••••••••' + newProvider.apiKey.slice(-4),
+      usage: 0,
+      limit: parseInt(newProvider.limit) || 50000,
+      cost: 0,
+      latency: Math.floor(Math.random() * 1000) + 500,
+      reliability: 99.0 + Math.random()
+    };
+    setProviders([...providers, provider]);
+    setNewProvider({ name: '', model: '', apiKey: '', limit: '', status: 'Active' });
+    setShowAddProvider(false);
+    toast.success(`Provider ${newProvider.name} añadido exitosamente`);
+
+  };
+
+  const handleDeleteProvider = (id, name) => {
+    setProviders(providers.filter(p => p.id !== id));
+    toast.success(`Provider ${name} eliminado`);
+  };
 
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'Active': return 'text-green-500';
-      case 'Standby': return 'text-yellow-500';
-      case 'Inactive': return 'text-red-500';
-      default: return 'text-gray-500';
-    }
-  };
+      switch (status) {
+        case 'Active': return 'text-green-500';
+        case 'Standby': return 'text-yellow-500';
+        case 'Inactive': return 'text-red-500';
+        default: return 'text-gray-500';
+      }
+    };
 
-  const getStatusBg = (status) => {
-    switch(status) {
-      case 'Active': return 'bg-green-500/20 border-green-500';
-      case 'Standby': return 'bg-yellow-500/20 border-yellow-500';
-      case 'Inactive': return 'bg-red-500/20 border-red-500';
-      default: return 'bg-gray-500/20 border-gray-500';
-    }
-  };
+    const getStatusBg = (status) => {
+      switch (status) {
+        case 'Active': return 'bg-green-500/20 border-green-500';
+        case 'Standby': return 'bg-yellow-500/20 border-yellow-500';
+        case 'Inactive': return 'bg-red-500/20 border-red-500';
+        default: return 'bg-gray-500/20 border-gray-500';
+      }
+    };
 
   const totalCost = providers.reduce((sum, p) => sum + p.cost, 0);
   const avgLatency = providers.reduce((sum, p) => sum + p.latency, 0) / providers.length;
@@ -124,33 +79,68 @@ const Providers = () => {
           <NeonText text="Gestión de Providers LLM" className="text-3xl md:text-4xl" />
         </h1>
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-cyan-500/50">
-            <div className="text-gray-400 text-sm mb-2">Providers Activos</div>
-            <div className="text-3xl font-bold text-cyan-400">
-              {providers.filter(p => p.status === 'Active').length}
-            </div>
+      {/* Add Provider Form */}
+      {showAddProvider && (
+        <div className="mt-8 neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-cyan-500/50">
+          <h3 className="text-cyan-400 font-bold mb-4">Añadir Nuevo Provider</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Nombre del Provider"
+              value={newProvider.name}
+              onChange={(e) => setNewProvider({...newProvider, name: e.target.value})}
+              className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
+            />
+            <input
+              type="text"
+              placeholder="Modelo"
+              value={newProvider.model}
+              onChange={(e) => setNewProvider({...newProvider, model: e.target.value})}
+              className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
+            />
+            <input
+              type="password"
+              placeholder="API Key"
+              value={newProvider.apiKey}
+              onChange={(e) => setNewProvider({...newProvider, apiKey: e.target.value})}
+              className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500 md:col-span-2"
+            />
+            <input
+              type="number"
+              placeholder="Límite de Tokens"
+              value={newProvider.limit}
+              onChange={(e) => setNewProvider({...newProvider, limit: e.target.value})}
+              className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
+            />
+            <select 
+              value={newProvider.status}
+              onChange={(e) => setNewProvider({...newProvider, status: e.target.value})}
+              className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
+            >
+              <option>Active</option>
+              <option>Standby</option>
+              <option>Inactive</option>
+            </select>
           </div>
-          <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-purple-500/50">
-            <div className="text-gray-400 text-sm mb-2">Costo Total (Mes)</div>
-            <div className="text-3xl font-bold text-purple-400">
-              ${totalCost.toFixed(2)}
-            </div>
-          </div>
-          <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-green-500/50">
-            <div className="text-gray-400 text-sm mb-2">Latencia Promedio</div>
-            <div className="text-3xl font-bold text-green-400">
-              {avgLatency.toFixed(0)}ms
-            </div>
-          </div>
-          <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-pink-500/50">
-            <div className="text-gray-400 text-sm mb-2">Confiabilidad Promedio</div>
-            <div className="text-3xl font-bold text-pink-400">
-              {avgReliability.toFixed(1)}%
-            </div>
+          <div className="flex justify-end space-x-4 mt-4">
+            <button
+              onClick={() => {
+                setShowAddProvider(false);
+                setNewProvider({ name: '', model: '', apiKey: '', limit: '', status: 'Active' });
+              }}
+              className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition-colors"
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={handleAddProvider}
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
+            >
+              Añadir Provider
+            </button>
           </div>
         </div>
+      )}
 
         {/* Add Provider Button */}
         <div className="flex justify-end mb-6">
@@ -158,9 +148,31 @@ const Providers = () => {
             onClick={() => setShowAddProvider(!showAddProvider)}
             className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
           >
-            + AÑADIR PROVIDER
+            AÑADIR PROVIDER
           </button>
         </div>
+
+        {/* Actualiza los botones de acción de cada provider */}
+        <div className="flex space-x-2 mt-4">
+        <button 
+          onClick={() => toast.info('Función en desarrollo')}
+          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded transition-colors text-sm"
+        >
+          Configurar
+        </button>
+        <button 
+          onClick={() => toast.info('Función en desarrollo')}
+          className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded transition-colors text-sm"
+        >
+          Estadísticas
+        </button>
+        <button 
+            onClick={() => handleDeleteProvider(provider.id, provider.name)}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors text-sm"
+        >
+          🗑️
+        </button>
+      </div>
 
         {/* Providers Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -229,58 +241,13 @@ const Providers = () => {
                   Estadísticas
                 </button>
                 <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors text-sm">
+                  
                   🗑️
                 </button>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Add Provider Form */}
-        {showAddProvider && (
-          <div className="mt-8 neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-cyan-500/50">
-            <h3 className="text-cyan-400 font-bold mb-4">Añadir Nuevo Provider</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Nombre del Provider"
-                className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
-              />
-              <input
-                type="text"
-                placeholder="Modelo"
-                className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
-              />
-              <input
-                type="password"
-                placeholder="API Key"
-                className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500 md:col-span-2"
-              />
-              <input
-                type="number"
-                placeholder="Límite de Tokens"
-                className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500"
-              />
-              <select className="bg-gray-900 text-white border-2 border-cyan-500/50 rounded px-4 py-2 focus:outline-none focus:border-cyan-500">
-                <option>Estado Inicial</option>
-                <option>Active</option>
-                <option>Standby</option>
-                <option>Inactive</option>
-              </select>
-            </div>
-            <div className="flex justify-end space-x-4 mt-4">
-              <button
-                onClick={() => setShowAddProvider(false)}
-                className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-6 rounded transition-colors"
-              >
-                Cancelar
-              </button>
-              <button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-cyan-500/50">
-                Añadir Provider
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       <style jsx>{`

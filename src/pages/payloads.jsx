@@ -1,43 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const NeonText = ({ text, className = "" }) => {
-  return (
-    <span className={`flex flex-wrap ${className}`}>
-      {text.split("").map((char, index) => {
-        if (char === " ") return <span key={index} className="mx-1">&nbsp;</span>;
-        
-        const rand = Math.random();
-        let animClass = "anim-steady";
-        
-        if (rand > 0.92) {
-          animClass = "anim-critical";
-        } else if (rand > 0.75) {
-          animClass = "anim-flicker";
-        }
-
-        const randomDuration = (Math.random() * 2 + 3).toFixed(2) + "s";
-        const randomDelay = (Math.random() * 4).toFixed(2) + "s";
-
-        return (
-          <span
-            key={index}
-            className={animClass}
-            style={{
-              animationDuration: randomDuration,
-              animationDelay: randomDelay,
-              display: "inline-block"
-            }}
-          >
-            {char}
-          </span>
-        );
-      })}
-    </span>
-  );
-};
+import { useToast } from '../contexts/ToastContext';
+import NeonText from '../components/NeonText';
 
 const PayloadGenerator = () => {
+  const toast = useToast();
   const [payloadType, setPayloadType] = useState('xss');
   const [customInput, setCustomInput] = useState('');
   const [generatedPayloads, setGeneratedPayloads] = useState([]);
@@ -110,27 +77,36 @@ const PayloadGenerator = () => {
   const encodingTypes = ['none', 'url', 'base64', 'hex', 'unicode', 'html'];
 
   const applyEncoding = (payload, encodingType) => {
-    switch(encodingType) {
-      case 'url':
-        return encodeURIComponent(payload);
-      case 'base64':
-        return btoa(payload);
-      case 'hex':
-        return Array.from(payload).map(c => c.charCodeAt(0).toString(16)).join('');
-      case 'unicode':
-        return Array.from(payload).map(c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4)).join('');
-      case 'html':
-        return Array.from(payload).map(c => `&#${c.charCodeAt(0)};`).join('');
-      default:
-        return payload;
+    try {
+      switch(encodingType) {
+        case 'url':
+          return encodeURIComponent(payload);
+        case 'base64':
+          return btoa(payload);
+        case 'hex':
+          return Array.from(payload).map(c => c.charCodeAt(0).toString(16)).join('');
+        case 'unicode':
+          return Array.from(payload).map(c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4)).join('');
+        case 'html':
+          return Array.from(payload).map(c => `&#${c.charCodeAt(0)};`).join('');
+        default:
+          return payload;
+      }
+    } catch (error) {
+      toast.error('Error al aplicar encoding');
+      return payload;
     }
   };
 
   const generatePayload = () => {
+    if (!customInput && variantCount === 0) {
+      toast.warning('Selecciona al menos una variante');
+      return;
+    }
+
     const templates = payloadTemplates[payloadType];
     const results = [];
 
-    // Si hay input personalizado, úsalo; si no, usa plantillas aleatorias
     const basePayloads = customInput 
       ? [customInput] 
       : Array.from({ length: variantCount }, () => 
@@ -138,7 +114,6 @@ const PayloadGenerator = () => {
         );
 
     if (encoding === 'todos') {
-      // Generar variantes con diferentes encodings
       basePayloads.forEach((basePayload, index) => {
         const encodingType = encodingTypes.filter(e => e !== 'none')[index % (encodingTypes.length - 1)];
         const encoded = applyEncoding(basePayload, encodingType);
@@ -150,7 +125,6 @@ const PayloadGenerator = () => {
         });
       });
 
-      // Si pedimos más variantes que tipos de encoding, generar combinaciones
       while (results.length < variantCount) {
         const basePayload = customInput || templates[Math.floor(Math.random() * templates.length)];
         const randomEncoding = encodingTypes.filter(e => e !== 'none')[
@@ -165,7 +139,6 @@ const PayloadGenerator = () => {
         });
       }
     } else {
-      // Generar variantes con el encoding seleccionado
       basePayloads.forEach((basePayload) => {
         const encoded = applyEncoding(basePayload, encoding);
         results.push({
@@ -178,17 +151,28 @@ const PayloadGenerator = () => {
     }
 
     setGeneratedPayloads(results.slice(0, variantCount));
+    toast.success(`${results.slice(0, variantCount).length} payloads generados exitosamente`);
   };
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    alert('Payload copiado al portapapeles!');
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        toast.success('¡Payload copiado al portapapeles!');
+      })
+      .catch(() => {
+        toast.error('Error al copiar al portapapeles');
+      });
   };
 
   const copyAllPayloads = () => {
     const allPayloads = generatedPayloads.map(p => p.payload).join('\n\n');
-    navigator.clipboard.writeText(allPayloads);
-    alert('Todos los payloads copiados al portapapeles!');
+    navigator.clipboard.writeText(allPayloads)
+      .then(() => {
+        toast.success(`${generatedPayloads.length} payloads copiados al portapapeles`);
+      })
+      .catch(() => {
+        toast.error('Error al copiar al portapapeles');
+      });
   };
 
   return (
@@ -203,7 +187,6 @@ const PayloadGenerator = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Tipo de Payload */}
           <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-purple-500/50">
             <label className="block text-cyan-400 font-bold mb-3">Tipo de Payload</label>
             <select 
@@ -220,7 +203,6 @@ const PayloadGenerator = () => {
             </select>
           </div>
 
-          {/* Encoding */}
           <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-purple-500/50">
             <label className="block text-cyan-400 font-bold mb-3">Encoding</label>
             <select 
@@ -239,7 +221,6 @@ const PayloadGenerator = () => {
           </div>
         </div>
 
-        {/* Input Personalizado */}
         <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-purple-500/50 mb-6">
           <label className="block text-cyan-400 font-bold mb-3">Payload Personalizado (Opcional)</label>
           <textarea
@@ -250,7 +231,6 @@ const PayloadGenerator = () => {
           />
         </div>
 
-        {/* Slider de Variantes */}
         <div className="neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-purple-500/50 mb-6">
           <div className="flex justify-between items-center mb-3">
             <label className="text-cyan-400 font-bold">Número de Variantes</label>
@@ -270,7 +250,6 @@ const PayloadGenerator = () => {
           </div>
         </div>
 
-        {/* Botón Generar */}
         <div className="text-center mb-6">
           <button
             onClick={generatePayload}
@@ -280,7 +259,6 @@ const PayloadGenerator = () => {
           </button>
         </div>
 
-        {/* Resultados */}
         {generatedPayloads.length > 0 && (
           <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
@@ -316,7 +294,6 @@ const PayloadGenerator = () => {
                   </button>
                 </div>
                 
-                {/* Payload Original (si hay encoding aplicado) */}
                 {item.encoding !== 'none' && (
                   <div className="mb-3">
                     <div className="text-gray-400 text-xs mb-1">Original:</div>
@@ -326,7 +303,6 @@ const PayloadGenerator = () => {
                   </div>
                 )}
                 
-                {/* Payload Encoded */}
                 <div>
                   <div className="text-green-400 text-xs mb-1">
                     {item.encoding !== 'none' ? 'Encoded:' : 'Payload:'}
@@ -340,7 +316,6 @@ const PayloadGenerator = () => {
           </div>
         )}
 
-        {/* Info Card */}
         <div className="mt-8 neon-card p-6 rounded-lg backdrop-blur-sm bg-gray-800/50 border-2 border-yellow-500/50">
           <h3 className="text-yellow-400 font-bold mb-3">⚠️ ADVERTENCIA</h3>
           <p className="text-gray-300 text-sm">
@@ -359,7 +334,6 @@ const PayloadGenerator = () => {
           box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
         }
         
-        /* Estilos personalizados para el slider */
         .slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;

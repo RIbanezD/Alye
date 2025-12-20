@@ -1,43 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const NeonText = ({ text, className = "" }) => {
-  return (
-    <span className={`flex flex-wrap ${className}`}>
-      {text.split("").map((char, index) => {
-        if (char === " ") return <span key={index} className="mx-1">&nbsp;</span>;
-        
-        const rand = Math.random();
-        let animClass = "anim-steady";
-        
-        if (rand > 0.92) {
-          animClass = "anim-critical";
-        } else if (rand > 0.75) {
-          animClass = "anim-flicker";
-        }
-
-        const randomDuration = (Math.random() * 2 + 3).toFixed(2) + "s";
-        const randomDelay = (Math.random() * 4).toFixed(2) + "s";
-
-        return (
-          <span
-            key={index}
-            className={animClass}
-            style={{
-              animationDuration: randomDuration,
-              animationDelay: randomDelay,
-              display: "inline-block"
-            }}
-          >
-            {char}
-          </span>
-        );
-      })}
-    </span>
-  );
-};
+import { useToast } from '../contexts/ToastContext';
+import NeonText from '../components/NeonText';
 
 const Reports = () => {
+  const toast = useToast();
   const [reportConfig, setReportConfig] = useState({
     projectName: '',
     client: '',
@@ -60,10 +27,16 @@ const Reports = () => {
   const [generating, setGenerating] = useState(false);
 
   const generateReport = () => {
+    if (!reportConfig.projectName || !reportConfig.client) {
+      toast.warning('Por favor completa el nombre del proyecto y cliente');
+      return;
+    }
     setGenerating(true);
+    toast.info('Generando reporte...');
     setTimeout(() => {
       alert('Reporte generado exitosamente!');
       setGenerating(false);
+      toast.success(`Reporte generado exitosamente en formato ${reportConfig.format.toUpperCase()}`);
     }, 2000);
   };
 

@@ -1,43 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const NeonText = ({ text, className = "" }) => {
-  return (
-    <span className={`flex flex-wrap ${className}`}>
-      {text.split("").map((char, index) => {
-        if (char === " ") return <span key={index} className="mx-1">&nbsp;</span>;
-        
-        const rand = Math.random();
-        let animClass = "anim-steady";
-        
-        if (rand > 0.92) {
-          animClass = "anim-critical";
-        } else if (rand > 0.75) {
-          animClass = "anim-flicker";
-        }
-
-        const randomDuration = (Math.random() * 2 + 3).toFixed(2) + "s";
-        const randomDelay = (Math.random() * 4).toFixed(2) + "s";
-
-        return (
-          <span
-            key={index}
-            className={animClass}
-            style={{
-              animationDuration: randomDuration,
-              animationDelay: randomDelay,
-              display: "inline-block"
-            }}
-          >
-            {char}
-          </span>
-        );
-      })}
-    </span>
-  );
-};
+import { useToast } from '../contexts/ToastContext';
+import NeonText from '../components/NeonText';
 
 const Osint = () => {
+  const toast = useToast();
   const [targetDomain, setTargetDomain] = useState('');
   const [scanResults, setScanResults] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -53,9 +20,13 @@ const Osint = () => {
   ];
 
   const startScan = () => {
-    if (!targetDomain.trim()) return;
+    if (!targetDomain.trim()) {
+      toast.warning('Por favor ingresa un dominio');
+      return;
+    }
 
     setIsScanning(true);
+    toast.info(`Iniciando escaneo de ${targetDomain}...`);
 
     setTimeout(() => {
       const mockResults = {
@@ -104,6 +75,7 @@ const Osint = () => {
 
       setScanResults(mockResults);
       setIsScanning(false);
+      toast.success('Escaneo completado exitosamente');
     }, 2500);
   };
 
