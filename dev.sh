@@ -20,7 +20,7 @@ trap cleanup SIGINT SIGTERM
 echo -e "${GREEN}📡 Iniciando Backend...${NC}"
 cd backend
 source venv/bin/activate
-python -m uvicorn api.main:app --reload --port 8000 &
+py -m uvicorn api.main:app --reload --port 8000 &
 BACKEND_PID=$!
 cd ..
 
@@ -29,7 +29,6 @@ sleep 3
 
 # Start Frontend
 echo -e "${GREEN}🎨 Iniciando Frontend...${NC}"
-cd frontend
 npm run dev &
 FRONTEND_PID=$!
 cd ..

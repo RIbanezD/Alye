@@ -53,7 +53,6 @@ cd ..
 
 # Frontend setup
 echo -e "${CYAN}📦 Configurando Frontend...${NC}"
-cd frontend
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
@@ -90,7 +89,6 @@ echo "  source venv/bin/activate"
 echo "  python -m uvicorn api.main:app --reload"
 echo ""
 echo -e "${YELLOW}Terminal 2 - Frontend:${NC}"
-echo "  cd frontend"
 echo "  npm run dev"
 echo ""
 echo -e "${CYAN}📝 Credenciales por defecto:${NC}"
