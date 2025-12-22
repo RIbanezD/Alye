@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import NeonText from './components/NeonText';
 import NeonHeader from './components/NeonHeader';
+import UserMenu from './components/UserMenu';
+import PrivateRoute from './components/PrivateRoute';
+//Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
 import PayloadGenerator from './pages/payloads';
 import RagAssistant from './pages/rag';
 import Classifier from './pages/classifier';
@@ -11,10 +18,22 @@ import Providers from './pages/providers';
 import NotFound from './pages/NotFound';
 
 function Home({ modules }) {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
+      {/* User Menu */}
+      <div className="flex justify-end mb-4">
+        <UserMenu />
+      </div>
+
       <div className="text-center mb-12">
         <NeonHeader text="ASISTENTE DE PENTESTING - Alye" />
+        {user && (
+          <p className="text-cyan-400 mt-4">
+            Bienvenido, <span className="font-bold">{user.name}</span>
+          </p>
+        )}
         <div className="h-1 bg-gradient-to-r from-transparent via-cyan-500 text-xs tracking-[0.5em] to-transparent mt-2 opacity-70"></div>
       </div>
 
@@ -125,16 +144,23 @@ function App() {
 
   return (
     <div>
-
       <Routes>
-        <Route path="/" element={<Home modules={modules} />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Private Routes */}
+        <Route path="/" element={<PrivateRoute><Home modules={modules} /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/payloads" element={<PrivateRoute><PayloadGenerator /></PrivateRoute>} />
+        <Route path="/rag" element={<PrivateRoute><RagAssistant /></PrivateRoute>} />
+        <Route path="/classifier" element={<PrivateRoute><Classifier /></PrivateRoute>} />
+        <Route path="/osint" element={<PrivateRoute><Osint /></PrivateRoute>} />
+        <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
+        <Route path="/providers" element={<PrivateRoute><Providers /></PrivateRoute>} />
+        
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
-        <Route path="/payloads" element={<PayloadGenerator/>} />
-        <Route path="/rag" element={<RagAssistant/>} />
-        <Route path="/classifier" element={<Classifier/>} />
-        <Route path="/osint" element={<Osint/>} />
-        <Route path="/reports" element={<Reports/>} />
-        <Route path="/providers" element={<Providers/>} />
       </Routes>
 
       <style jsx>{`
