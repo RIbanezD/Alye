@@ -16,6 +16,8 @@ import Osint from './pages/osint';
 import Reports from './pages/reports';
 import Providers from './pages/providers';
 import NotFound from './pages/NotFound';
+import ProjectsDashboard from './pages/ProjectsDashboard';
+import ProjectDetailView from './pages/ProjectDetailView';
 
 function Home({ modules }) {
   const { user } = useAuth();
@@ -158,6 +160,8 @@ function App() {
         <Route path="/osint" element={<PrivateRoute><Osint /></PrivateRoute>} />
         <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
         <Route path="/providers" element={<PrivateRoute><Providers /></PrivateRoute>} />
+        <Route path="/projects" element={<ProjectsDashboard />} />
+        <Route path="/projects/:projectId" element={<ProjectDetailView />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
