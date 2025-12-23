@@ -2,21 +2,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from config.database import init_db, SessionLocal
-from config.seeds import seed_default_users
-from api.routes import auth
+from config.seeds import seed_all
+from api.routes import auth, projects, targets, vulnerabilities, conversations
 
 # Initialize database
 init_db()
 
 db = SessionLocal()
 try:
-    seed_default_users(db)
+    seed_all(db)
 finally:
     db.close()
 
 app = FastAPI(
     title="Pentesting Assistant API",
-    description="Authentication and Authorization API",
+    description="Authentication and Authorization API for pentesting",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -33,6 +33,10 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth.router, prefix="/api")
+app.include_router(projects.router, prefix="/api")
+app.include_router(targets.router, prefix="/api")
+app.include_router(vulnerabilities.router, prefix="/api")
+app.include_router(conversations.router, prefix="/api")
 
 @app.get("/")
 async def root():

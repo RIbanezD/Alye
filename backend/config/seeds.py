@@ -2,6 +2,7 @@
 from sqlalchemy.orm import Session
 from api.models.user import User, UserRole
 from api.utils.password import get_password_hash
+from config.tool_seeds import seed_default_tools
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,7 +10,6 @@ logger = logging.getLogger(__name__)
 def seed_default_users(db: Session):
     """Create default users if they don't exist"""
     
-    # Lista de usuarios por defecto
     default_users = [
         {
             "name": "Administrator",
@@ -19,7 +19,6 @@ def seed_default_users(db: Session):
             "organization": "Alye Security",
             "bio": "System Administrator"
         },
-        # Puedes agregar más usuarios aquí
     ]
     
     for user_data in default_users:
@@ -46,3 +45,11 @@ def seed_default_users(db: Session):
         logger.error(f"❌ Error seeding users: {e}")
         db.rollback()
         raise
+
+def seed_all(db: Session):
+    """Run all seed functions"""
+    
+    logger.info("🌱 Starting database seeding...")
+    seed_default_users(db)
+    seed_default_tools(db)
+    logger.info("✅ Database seeding completed!")

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import NeonHeader from '../components/NeonHeader';
-import NeonText from '../components/NeonText';
 import LoadingSpinner from '../components/LoadingSpinner';
+
 
 const Login = () => {
   const { login } = useAuth();
@@ -11,34 +11,46 @@ const Login = () => {
     email: '',
     password: ''
   });
+
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
+  setError(''); // Agregar esta línea (limpia errores previos)
     
+  try {
     await login(formData.email, formData.password);
-    
+    // Si llega aquí, el login fue exitoso
+  } catch (err) {
+    console.error('Error en login:', err);
+    setError(err.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) setError('');
   };
 
   return (
+
+
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <span className="text-4xl font-bold mb-2">
-            <NeonHeader text="PENTESTING ASSISTANT" className="text-2xl md:text-3xl" />
+            <NeonHeader text="PENTESTING ASSISTANT" />
           </span>
-          <p className="text-gray-400 text-sm">Sistema de Autenticación Seguro</p>
+          <p className="text-cyan-400 text-sm">Sistema de Autenticación Seguro</p>
         </div>
 
         {/* Login Card */}
@@ -47,6 +59,12 @@ const Login = () => {
             Iniciar Sesión
           </h2>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
@@ -84,7 +102,7 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors"
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  {showPassword ? '👁️‍🗨️' : '👁️‍🗨️'}
                 </button>
               </div>
             </div>
