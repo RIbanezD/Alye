@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from config.database import init_db, SessionLocal
 from config.seeds import seed_all
-from api.routes import auth, projects, targets, vulnerabilities, conversations
+from api.routes import auth, projects, targets, vulnerabilities, conversations, llm, files, exports
 
 # Initialize database
 init_db()
@@ -29,6 +29,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"]
 )
 
 # Include routers
@@ -37,6 +38,9 @@ app.include_router(projects.router, prefix="/api")
 app.include_router(targets.router, prefix="/api")
 app.include_router(vulnerabilities.router, prefix="/api")
 app.include_router(conversations.router, prefix="/api")
+app.include_router(llm.router, prefix="/api")
+app.include_router(files.router, prefix="/api")
+app.include_router(exports.router, prefix="/api")
 
 @app.get("/")
 async def root():

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { projectService } from '../services/ProjectService';
 import TargetsManagement from '../components/TargetsManagement';
 import VulnerabilitiesView from '../components/VulnerabilitiesView';
 import ChatAssistant from '../components/ChatAssistant';
+import FilesManagement from '../components/FileManagement';
 
-export default function ProjectDetailView({ projectId }) {
+export default function ProjectDetailView() {
+  const { projectId } = useParams();
   const [project, setProject] = useState(null);
   const [activeTab, setActiveTab] = useState('targets');
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,7 @@ export default function ProjectDetailView({ projectId }) {
   const tabs = [
     { id: 'targets', label: 'Objetivos', icon: '🎯' },
     { id: 'vulnerabilities', label: 'Vulnerabilidades', icon: '🔒' },
+    { id: 'files', label: 'Archivos', icon: '📁' },
     { id: 'chat', label: 'Asistente IA', icon: '🤖' }
   ];
 
@@ -104,6 +108,10 @@ export default function ProjectDetailView({ projectId }) {
         
         {activeTab === 'vulnerabilities' && (
           <VulnerabilitiesView projectId={projectId} />
+        )}
+
+        {activeTab === 'files' && (
+          <FilesManagement projectId={projectId} />
         )}
         
         {activeTab === 'chat' && (

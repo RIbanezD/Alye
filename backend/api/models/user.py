@@ -35,3 +35,4 @@ class User(Base):
     tool_executions = relationship("ToolExecution", back_populates="user")
     conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="user", cascade="all, delete-orphan")
+    exports = relationship("ProjectExport", back_populates="user", cascade="all, delete-orphan")

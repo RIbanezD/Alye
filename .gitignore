@@ -18,6 +18,7 @@ build/
 pentesting.db
 
 # Environment variables
+backend/.env
 .env
 .env.local
 

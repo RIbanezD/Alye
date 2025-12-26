@@ -48,9 +48,9 @@ const Login = () => {
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <span className="text-4xl font-bold mb-2">
-            <NeonHeader text="PENTESTING ASSISTANT" />
+            <NeonHeader text="PENTESTING ASSISTANT" className="text-2xl md:text-3xl" />
           </span>
-          <p className="text-cyan-400 text-sm">Sistema de Autenticación Seguro</p>
+          <p className="text-gray-400 text-sm">Sistema de Autenticación Seguro</p>
         </div>
 
         {/* Login Card */}

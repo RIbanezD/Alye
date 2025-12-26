@@ -8,6 +8,9 @@ from .tool_execution import ToolExecution, ExecutionStatus
 from .conversation import Conversation, LLMProvider
 from .message import Message, MessageRole
 from .report import Report, ReportFormat, ReportStatus
+from .file import ProjectFile, FileType
+from .project_export import ProjectExport
+
 
 __all__ = [
     "User",
@@ -32,4 +35,7 @@ __all__ = [
     "Report",
     "ReportFormat",
     "ReportStatus",
+    "ProjectFile",
+    "FileType",
+    "ProjectExport"
 ]
