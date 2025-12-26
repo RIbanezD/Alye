@@ -18,6 +18,8 @@ import Providers from './pages/providers';
 import NotFound from './pages/NotFound';
 import ProjectsDashboard from './pages/ProjectsDashboard';
 import ProjectDetailView from './pages/ProjectDetailView';
+import Dashboard from './pages/Dashboard'; //metricas
+import ProjectDashboard from './pages/ProjectDashboard'; //listas
 
 function Home({ modules }) {
   const { user } = useAuth();
@@ -141,7 +143,16 @@ function App() {
       metrics: [
         { label: 'Último Ciclo', value: 'ESTABLE', valueColor: 'text-green-400' }
       ]
-    }    
+    },
+    {
+      id: 'dashboard',
+      title: 'Dashboards',
+      status: 'OPERACIONAL',
+      statusColor: 'text-green-400',
+      metrics: [
+        { label: 'Último Ciclo', value: 'ESTABLE', valueColor: 'text-green-400' }
+      ]
+    }
   ]);
 
   return (
@@ -161,7 +172,9 @@ function App() {
         <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
         <Route path="/providers" element={<PrivateRoute><Providers /></PrivateRoute>} />
         <Route path="/projects" element={<ProjectsDashboard />} />
-        <Route path="/projects/:projectId" element={<ProjectDetailView />} />
+        <Route path="/projects/:projectId" element={<PrivateRoute><ProjectDashboard /></PrivateRoute>} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+        <Route path="/projects/:projectId/dashboard" element={<PrivateRoute><ProjectDashboard /></PrivateRoute>} />
         
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

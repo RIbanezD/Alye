@@ -17,6 +17,7 @@ class Project(Base):
     name = Column(String(200), nullable=False)
     description = Column(Text)
     status = Column(SQLEnum(ProjectStatus), default=ProjectStatus.PLANNING)
+    files = relationship("ProjectFile", back_populates="project", cascade="all, delete-orphan")
     
     # Owner
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -30,4 +31,5 @@ class Project(Base):
     targets = relationship("Target", back_populates="project", cascade="all, delete-orphan")
     conversations = relationship("Conversation", back_populates="project", cascade="all, delete-orphan")
     reports = relationship("Report", back_populates="project", cascade="all, delete-orphan")
+    exports = relationship("ProjectExport", back_populates="project", cascade="all, delete-orphan")
 
